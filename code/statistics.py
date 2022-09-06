@@ -47,7 +47,6 @@ print("Accident no injury rate: %.2F %%"%(A_df["NO_PERSONS_NOT_INJ"].sum()/A_df[
 # %%-
 # %%--  1-Mortality and injury over time
 #   Reshape dataframe for plot
-A1_df = A_df[['NO_PERSONS_KILLED','NO_PERSONS_INJ_2','NO_PERSONS_INJ_3','NO_PERSONS_NOT_INJ']].set_index(pd.to_datetime(A_df['ACCIDENTDATE'])).copy(deep=True)
 A1_df = A_df[['ACCIDENTDATE','NO_PERSONS_KILLED','NO_PERSONS_INJ_2','NO_PERSONS_INJ_3','NO_PERSONS_NOT_INJ']].copy(deep=True)
 A1_df['ACCIDENTDATE']=pd.to_datetime(A1_df['ACCIDENTDATE'],infer_datetime_format=True)
 A1_df = A1_df.groupby([pd.Grouper(key='ACCIDENTDATE',freq='M')]).sum()
@@ -57,7 +56,6 @@ A1_df.replace({'Injury level':{'NO_PERSONS_KILLED':'Killed','NO_PERSONS_INJ_2':'
 
 #   Plot
 figname = "Injury over time"
-
 fig = plt.figure(figsize=(10,6))
 ax = plt.gca()
 sns.lineplot(
@@ -74,13 +72,14 @@ sns.lineplot(
     dashes=False,
     legend=True,
 )
-
 ax.set_xlabel('Date')
 ax.set_title(figname, fontsize=18, y=1.1)
 ax.tick_params(axis='x',labelrotation=45)
 ax.legend(ncol=4,bbox_to_anchor=(0.5,1.05), loc='center', borderaxespad=0.,frameon=False)
-
 if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
 plt.show()
+# %%-
+# %%--
+#   Serious injury rate at speed/age/vehicle type/location over time?
 # %%-
