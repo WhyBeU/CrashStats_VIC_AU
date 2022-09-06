@@ -124,6 +124,31 @@ A2_df_atm = A2_df_atm.melt(id_vars="Atmosph Cond Desc",var_name='Injury level',v
 A2_df_atm.replace({'Injury level':{'NO_PERSONS_KILLED':'Killed','NO_PERSONS_INJ_2':'Serious injury'}}, inplace=True)
 A2_df_atm=A2_df_atm.loc[A2_df_atm["Atmosph Cond Desc"]!="Not Applicable"]
 
+#   Plot
+figname = "Injury rate by category"
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(20,15))
+x_tab = ['SPEED_ZONE', 'Day Week Description', 'Accident Type Desc', 'Light Condition Desc', 'Road Geometry Desc', 'Atmosph Cond Desc']
+df_tab = [A2_df_speed, A2_df_day, A2_df_type, A2_df_light, A2_df_road, A2_df_atm]
+xlabel_tab = ['Speed zone', 'Day of the week', 'Accident type', 'Light condition', 'Road type', 'Atmospheric condition']
+rot_tab = [0, 0, 90, 90, 90, 90]
+for x, df, xlabel, rot, ax in zip(x_tab, df_tab, xlabel_tab, rot_tab, axes.flatten()):
+    sns.barplot(
+        x=x,
+        y='Number of persons [%]',
+        hue='Injury level',
+        data=df,
+        ax=ax,
+        saturation=0.8,
+    )
+    ax.set_xlabel(xlabel)
+    ax.tick_params(axis='x',labelrotation=rot)
+    ax.legend_.remove()
+
+axes[0][1].set_title(figname, fontsize=18, y=1.1)
+axes[0][1].legend(ncol=2,bbox_to_anchor=(0.5,1.05), loc='center', borderaxespad=0.,frameon=False)
+if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+plt.tight_layout()
+plt.show()
 # %%-
 # %%--
 #   Serious injury rate at speed/age/vehicle type/location over time?
