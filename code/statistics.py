@@ -152,7 +152,7 @@ if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"
 plt.tight_layout()
 plt.show()
 # %%-
-# %%--  3-Mortality from vehicle type
+# %%--  3-Mortality and injury ratefrom vehicle type
 #   Fatal and serious injury datasets [Severity 1 or 2]
 A3_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
 
@@ -164,9 +164,30 @@ A3_df['NO_PERSONS_INJ_2'] = A3_df['NO_PERSONS_INJ_2']/A3_df['NO_PERSONS_INJ_2'].
 A3_df_vehic = dfs_dic['VEHICLE'].loc[dfs_dic['VEHICLE']['VEHICLE_ID'] == "A"].copy(deep=True)
 A3_df = pd.merge(A3_df, A3_df_vehic,how="left", on="ACCIDENT_NO")
 
-#   Print impact collision statistics:
-# A3_df_coll = A3_df[['NO_PERSONS_KILLED','NO_PERSONS_INJ_2','Accident Type Desc']].groupby("Accident Type Desc").sum()
-
+#   Print impact collision statistics
+A3_df_coll = A3_df[['NO_PERSONS_KILLED','NO_PERSONS_INJ_2','INITIAL_IMPACT']].groupby("INITIAL_IMPACT").sum()
+A3_df_coll.reset_index(inplace=True)
+vocab_coll={
+    '0': 'Towed unit',
+    '1': 'Right front corner',
+    '2': 'Right side forwards',
+    '3': 'Right side rearwards',
+    '4': 'Right rear corner',
+    '5': 'Left front corner',
+    '6': 'Left side forwards',
+    '7': 'Left side rearwards',
+    '8': 'Left rear corner',
+    '9': 'Not known/not applicable',
+    'F': 'Front',
+    'N': 'None',
+    'R': 'Rear',
+    'S': 'Sidecar',
+    'T': 'Top/roof',
+    'U': 'Undercarriag',
+}
+A3_df_coll.replace({'INITIAL_IMPACT': vocab_coll}, inplace=True)
+for i, row in A3_df_coll.iterrows():
+    print("Killed: %.2F %%; \t"%(row['NO_PERSONS_KILLED']),"Serious injury : %.2F %%; \t"%(row['NO_PERSONS_INJ_2']),"Impact point: ",row["INITIAL_IMPACT"])
 
 #   Reshape data for plot and keep top n categories based on total person killed and inured
 n=10
