@@ -12,7 +12,7 @@ from matplotlibstyle import *
 # %%--  Settings
 DATADIR = "data/"
 FIGDIR = "figures/"
-SAVE = True
+SAVE = False
 # %%-
 
 # %%--  Data loading
@@ -168,7 +168,7 @@ A3_df = pd.merge(A3_df, A3_df_vehic,how="left", on="ACCIDENT_NO")
 #   Print impact collision statistics
 A3_df_coll = A3_df[['NO_PERSONS_KILLED','NO_PERSONS_INJ_2','INITIAL_IMPACT']].groupby("INITIAL_IMPACT").sum()
 A3_df_coll.reset_index(inplace=True)
-vocab_coll={
+vocab_coll = {
     '0': 'Towed unit',
     '1': 'Right front corner',
     '2': 'Right side forwards',
@@ -278,7 +278,7 @@ ax2 = fig.add_subplot(gs[0,1])
 ax3 = fig.add_subplot(gs[1,:])
 
 ax1.scatter(A4_df_inj['VEHICLE_YEAR_MANUF'],A4_df_inj['AGE'],marker=".",s=size, c=A4_df_inj['NO_PERSONS_INJ_2'], alpha=alpha, label="Injured", vmin=vmin, vmax=vmax)
-sc=ax2.scatter(A4_df_killed['VEHICLE_YEAR_MANUF'],A4_df_killed['AGE'],marker=".",s=size, c=A4_df_killed['NO_PERSONS_KILLED'], alpha=alpha, label="Killed", vmin=vmin, vmax=vmax)
+sc = ax2.scatter(A4_df_killed['VEHICLE_YEAR_MANUF'],A4_df_killed['AGE'],marker=".",s=size, c=A4_df_killed['NO_PERSONS_KILLED'], alpha=alpha, label="Killed", vmin=vmin, vmax=vmax)
 sns.kdeplot(
     data=A4_df,
     ax=ax3,
@@ -308,7 +308,4 @@ cbar.set_label("Injury rate")
 
 if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.show()
-# %%-
-# %%--
-#   Serious injury rate at speed/age/vehicle type/location over time?
 # %%-
