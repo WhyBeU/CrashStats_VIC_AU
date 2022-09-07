@@ -152,6 +152,65 @@ if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"
 plt.tight_layout()
 plt.show()
 # %%-
+# %%--  3-Mortality from vehicle type
+#   Fatal and serious injury datasets [Severity 1 or 2]
+A3_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
+
+#   Convert to injury rate percentage
+A3_df['NO_PERSONS_KILLED'] = A3_df['NO_PERSONS_KILLED']/A3_df['NO_PERSONS_KILLED'].sum()*100
+A3_df['NO_PERSONS_INJ_2'] = A3_df['NO_PERSONS_INJ_2']/A3_df['NO_PERSONS_INJ_2'].sum()*100
+
+#   Merge to vehcile dataset assuming vehicle 1 is the vehcile responsible for the accident
+A3_df_vehic = dfs_dic['VEHICLE'].loc[dfs_dic['VEHICLE']['VEHICLE_ID'] == "A"].copy(deep=True)
+A3_df = pd.merge(A3_df, A3_df_vehic,how="left", on="ACCIDENT_NO")
+
+#   Print impact collision statistics:
+# A3_df_coll = A3_df[['NO_PERSONS_KILLED','NO_PERSONS_INJ_2','Accident Type Desc']].groupby("Accident Type Desc").sum()
+
+
+#   Reshape data for plot and keep top n categories based on total person killed and inured
+n=10
+A3_df_maker = A3_df[['NO_PERSONS_KILLED','NO_PERSONS_INJ_2','VEHICLE_MAKE']].groupby("VEHICLE_MAKE").sum()
+A3_df_maker.reset_index(inplace=True)
+A3_df_maker['Total'] = A3_df_maker['NO_PERSONS_KILLED']+A3_df_maker['NO_PERSONS_INJ_2']
+A3_df_maker = A3_df_maker.nlargest(n,'Total')
+A3_df_maker = A3_df_maker.melt(id_vars="VEHICLE_MAKE", value_vars=['NO_PERSONS_KILLED','NO_PERSONS_INJ_2'], var_name='Injury level', value_name='Number of persons [%]')
+A3_df_maker.replace({'Injury level':{'NO_PERSONS_KILLED':'Killed','NO_PERSONS_INJ_2':'Serious injury'}}, inplace=True)
+
+A3_df_type = A3_df[['NO_PERSONS_KILLED','NO_PERSONS_INJ_2','Vehicle Type Desc']].groupby("Vehicle Type Desc").sum()
+A3_df_type.reset_index(inplace=True)
+A3_df_type['Total'] = A3_df_type['NO_PERSONS_KILLED']+A3_df_type['NO_PERSONS_INJ_2']
+A3_df_type = A3_df_type.nlargest(n,'Total')
+A3_df_type = A3_df_type.melt(id_vars="Vehicle Type Desc", value_vars=['NO_PERSONS_KILLED','NO_PERSONS_INJ_2'], var_name='Injury level',value_name='Number of persons [%]')
+A3_df_type.replace({'Injury level':{'NO_PERSONS_KILLED':'Killed','NO_PERSONS_INJ_2':'Serious injury'}}, inplace=True)
+
+#   Plot
+figname = "Injury rate by vehicle type and maker"
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17,5))
+x_tab = ['Vehicle Type Desc', 'VEHICLE_MAKE']
+df_tab = [A3_df_type, A3_df_maker]
+xlabel_tab = ['Vehicle type', 'Vehicle maker']
+rot_tab = [90, 90]
+for x, df, xlabel, rot, ax in zip(x_tab, df_tab, xlabel_tab, rot_tab, axes.flatten()):
+    df.sort_values('Number of persons [%]', inplace=True, ascending=False)
+    sns.barplot(
+        x=x,
+        y='Number of persons [%]',
+        hue='Injury level',
+        data=df,
+        ax=ax,
+        saturation=0.8,
+    )
+    ax.set_xlabel(xlabel)
+    ax.tick_params(axis='x',labelrotation=rot)
+    ax.legend_.remove()
+
+axes[0].set_title(figname, fontsize=18, y=1.05)
+axes[0].legend(ncol=2,bbox_to_anchor=(1.5,1.07), loc='center', borderaxespad=0.,frameon=False)
+if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+plt.tight_layout()
+plt.show()
+# %%-
 # %%--
 #   Serious injury rate at speed/age/vehicle type/location over time?
 # %%-
