@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import seaborn as sns
 import datetime
 
@@ -230,6 +231,82 @@ axes[0].set_title(figname, fontsize=18, y=1.05)
 axes[0].legend(ncol=2,bbox_to_anchor=(1.5,1.07), loc='center', borderaxespad=0.,frameon=False)
 if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
+plt.show()
+# %%-
+# %%--  4-Mortality and injury rate by car manufacturing year and accident oldness
+#   Fatal and serious injury datasets [Severity 1 or 2]
+A4_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
+
+#   Merge to vehcile dataset assuming vehicle 1 is the vehcile responsible for the accident
+A4_df_vehic = dfs_dic['VEHICLE'].loc[dfs_dic['VEHICLE']['VEHICLE_ID'] == "A"].copy(deep=True)
+A4_df = pd.merge(A4_df, A4_df_vehic,how="left", on="ACCIDENT_NO")
+
+#   Only keep cars [VEHICLE_TYPE 1]
+A4_df = A4_df.loc[A4_df['VEHICLE_TYPE']==1]
+
+#   Keep rows with Valid Manufacturing year and relevant columns
+A4_df = A4_df.dropna(subset=['VEHICLE_YEAR_MANUF'])
+A4_df = A4_df.loc[A4_df['VEHICLE_YEAR_MANUF']!=0]
+A4_df = A4_df[['VEHICLE_YEAR_MANUF','ACCIDENTDATE','NO_PERSONS_KILLED','NO_PERSONS_INJ_2','SEVERITY']]
+
+#   Convert to injury rate percentage
+A4_df['NO_PERSONS_KILLED'] = A4_df['NO_PERSONS_KILLED']/A4_df['NO_PERSONS_KILLED'].sum()*100
+A4_df['NO_PERSONS_INJ_2'] = A4_df['NO_PERSONS_INJ_2']/A4_df['NO_PERSONS_INJ_2'].sum()*100
+
+#   Calculate car age at accident [Age at accident]
+A4_df['ACCIDENTDATE'] = pd.to_datetime(A4_df['ACCIDENTDATE'],infer_datetime_format=True)
+A4_df['AGE'] = [date.year-manuf for date,manuf in zip(A4_df['ACCIDENTDATE'],A4_df['VEHICLE_YEAR_MANUF'])]
+
+#   Reshape data for plot
+A4_df_killed = A4_df.loc[A4_df['SEVERITY']==1]
+A4_df_killed = A4_df_killed[['NO_PERSONS_KILLED','VEHICLE_YEAR_MANUF','AGE']].groupby(['VEHICLE_YEAR_MANUF','AGE']).sum()
+A4_df_killed.reset_index(inplace=True)
+
+A4_df_inj = A4_df.loc[A4_df['SEVERITY']==2]
+A4_df_inj = A4_df_inj[['NO_PERSONS_INJ_2','VEHICLE_YEAR_MANUF','AGE']].groupby(['VEHICLE_YEAR_MANUF','AGE']).sum()
+A4_df_inj.reset_index(inplace=True)
+#   Plot
+figname = "Vehicle manufacturing date and age injury rate"
+alpha = 1
+size = 100
+vmin = 0
+vmax = 0.5
+fig = plt.figure(figsize=(10,10))
+gs = gridspec.GridSpec(nrows=2, ncols=2, figure=fig)
+ax1 = fig.add_subplot(gs[0,0])
+ax2 = fig.add_subplot(gs[0,1])
+ax3 = fig.add_subplot(gs[1,:])
+
+ax1.scatter(A4_df_inj['VEHICLE_YEAR_MANUF'],A4_df_inj['AGE'],marker=".",s=size, c=A4_df_inj['NO_PERSONS_INJ_2'], alpha=alpha, label="Injured", vmin=vmin, vmax=vmax)
+sc=ax2.scatter(A4_df_killed['VEHICLE_YEAR_MANUF'],A4_df_killed['AGE'],marker=".",s=size, c=A4_df_killed['NO_PERSONS_KILLED'], alpha=alpha, label="Killed", vmin=vmin, vmax=vmax)
+sns.kdeplot(
+    data=A4_df,
+    ax=ax3,
+    x='VEHICLE_YEAR_MANUF',
+    fill=True,
+    legend=False,
+    color="firebrick",
+    clip=(1900,2021),
+)
+
+ax1.set_title(figname, fontsize=18, y=1.05, x=1.2)
+ax1.set_xlim(1970,2020)
+ax1.set_ylim(0,50)
+ax1.set_xlabel('Manufacturing year')
+ax1.set_ylabel('Age at accident')
+
+ax2.set_xlim(1970,2020)
+ax2.set_ylim(0,50)
+ax2.set_xlabel('Manufacturing year')
+
+ax3.set_xlim(1970,2020)
+ax3.set_xlabel('Manufacturing year')
+ax3.set_title("Vehicle manufacturing distribution", fontsize=14, y=0.9, x=0.25)
+
+cbar=fig.colorbar(sc, ax=ax3)
+cbar.set_label("Injury rate")
+
+if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.show()
 # %%-
 # %%--
