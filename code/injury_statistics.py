@@ -36,6 +36,7 @@ for filename in filenames:
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 #---    A - Injury rate statistics
 #///////////////////////////////////////////////////////////////////////////////
+
 # %%--  0-Base statistics
 A0_df = dfs_dic["ACCIDENT"]
 
@@ -46,6 +47,7 @@ print("Accident minor injury rate: %.2F %%"%(A_df["NO_PERSONS_INJ_3"].sum()/A_df
 print("Accident no injury rate: %.2F %%"%(A_df["NO_PERSONS_NOT_INJ"].sum()/A_df["NO_PERSONS"].sum()*100))
 
 # %%-
+
 # %%--  1-Mortality and injury over time
 #   Reshape dataframe for plot
 A1_df = dfs_dic["ACCIDENT"][['ACCIDENTDATE','NO_PERSONS_KILLED','NO_PERSONS_INJ_2','NO_PERSONS_INJ_3','NO_PERSONS_NOT_INJ']].copy(deep=True)
@@ -81,6 +83,7 @@ if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"
 plt.tight_layout()
 plt.show()
 # %%-
+
 # %%--  2-Mortality and injury rate category statistics
 #   Fatal and serious injury datasets [Severity 1 or 2]
 A2_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
@@ -153,6 +156,7 @@ if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"
 plt.tight_layout()
 plt.show()
 # %%-
+
 # %%--  3-Mortality and injury ratefrom vehicle type
 #   Fatal and serious injury datasets [Severity 1 or 2]
 A3_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
@@ -233,6 +237,7 @@ if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"
 plt.tight_layout()
 plt.show()
 # %%-
+
 # %%--  4-Mortality and injury rate by car manufacturing year and accident oldness
 #   Fatal and serious injury datasets [Severity 1 or 2]
 A4_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
