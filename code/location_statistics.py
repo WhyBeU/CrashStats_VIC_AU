@@ -12,7 +12,7 @@ from matplotlibstyle import *
 # %%--  Settings
 DATADIR = "data/"
 FIGDIR = "figures/"
-SAVE = False
+SAVE = True
 # %%-
 
 # %%--  Data loading
@@ -32,7 +32,6 @@ dfs_dic = {}
 for filename in filenames:
     dfs_dic[filename] = pd.read_csv(DATADIR+filename+".csv")
 # %%-
-
 
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 #---    B - Location based accident awareness
@@ -76,6 +75,7 @@ if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"
 plt.tight_layout()
 plt.show()
 # %%-
+
 # %%--  1-Map of Bendigo
 #   Fatal and serious injury datasets [Severity 1 or 2]
 B1_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
@@ -98,10 +98,78 @@ ymin = 2.505e6
 window = 0.045e6
 
 fig, (ax1) = plt.subplots(nrows=1, ncols=1, figsize=(5,5))
-ax1.scatter(B1_df["VICGRID94_X"],B1_df["VICGRID94_Y"], marker=".", s=size, alpha=alpha, c="orchid")
+ax1.scatter(B1_df["VICGRID94_X"],B1_df["VICGRID94_Y"], marker=".", s=size, alpha=alpha, c="k")
 
 ax1.set_xlim(xmin, xmin+window)
 ax1.set_ylim(ymin, ymin + window)
+ax1.set_aspect("equal")
+ax1.axis("off")
+
+if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+plt.tight_layout()
+plt.show()
+# %%-
+
+# %%--  2-Map of Melbourne
+#   Fatal and serious injury datasets [Severity 1 or 2]
+B2_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
+
+#   Merge to NODE dataset to access location. Remove ACCIDENT_NO duplicates
+B2_df_node = dfs_dic['NODE'].copy(deep=True)
+B2_df_node.drop_duplicates(subset=['ACCIDENT_NO'], inplace=True)
+B2_df = pd.merge(B2_df, B2_df_node,how="left", on="ACCIDENT_NO")
+B2_df['TOTAL_INJURY'] = B2_df['NO_PERSONS_KILLED'] + B2_df['NO_PERSONS_INJ_2']
+
+#   Convert to injury rate percentage
+B2_df['TOTAL_INJURY'] = B2_df['TOTAL_INJURY']/B2_df['TOTAL_INJURY'].sum()*100
+
+#   Plot map of all serious accidents
+figname = "Melbourne injury and fatality map"
+alpha = 0.1
+size = 1
+xmin = 2.46725e6
+ymin = 2.3825e6
+window = 0.055e6
+
+fig, (ax1) = plt.subplots(nrows=1, ncols=1, figsize=(5,5))
+ax1.scatter(B2_df["VICGRID94_X"],B2_df["VICGRID94_Y"], marker=".", s=size, alpha=alpha, c="k")
+
+ax1.set_xlim(xmin, xmin+window)
+ax1.set_ylim(ymin, ymin+window)
+ax1.set_aspect("equal")
+ax1.axis("off")
+
+if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+plt.tight_layout()
+plt.show()
+# %%-
+
+# %%--  3-Map of Melbourne CBD
+#   Fatal and serious injury datasets [Severity 1 or 2]
+B3_df = dfs_dic["ACCIDENT"].loc[dfs_dic["ACCIDENT"]["SEVERITY"]<3].copy(deep=True)
+
+#   Merge to NODE dataset to access location. Remove ACCIDENT_NO duplicates
+B3_df_node = dfs_dic['NODE'].copy(deep=True)
+B3_df_node.drop_duplicates(subset=['ACCIDENT_NO'], inplace=True)
+B3_df = pd.merge(B3_df, B3_df_node,how="left", on="ACCIDENT_NO")
+B3_df['TOTAL_INJURY'] = B3_df['NO_PERSONS_KILLED'] + B3_df['NO_PERSONS_INJ_2']
+
+#   Convert to injury rate percentage
+B3_df['TOTAL_INJURY'] = B3_df['TOTAL_INJURY']/B3_df['TOTAL_INJURY'].sum()*100
+
+#   Plot map of all serious accidents
+figname = "Melbourne CBD injury and fatality map"
+alpha = 0.3
+size = 3
+xmin = 2.4945e6
+ymin = 2.4078e6
+window = 0.004e6
+
+fig, (ax1) = plt.subplots(nrows=1, ncols=1, figsize=(5,5))
+ax1.scatter(B3_df["VICGRID94_X"],B3_df["VICGRID94_Y"], marker=".", s=size, alpha=alpha, c="k")
+
+ax1.set_xlim(xmin, xmin+window)
+ax1.set_ylim(ymin, ymin+window)
 ax1.set_aspect("equal")
 ax1.axis("off")
 
