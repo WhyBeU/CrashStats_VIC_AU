@@ -19,11 +19,11 @@ Download the crash statistics dataset of the Victorian government and extract th
 ```
 project
 │   README.md
-│   matplotlibestyle.py             [matplotlib parameters settings]
 │
 └───code
 │   │   injury_statistics.py        [calculation and plotting of the injury-related statistics]
 │   │   location_statistics.py      [calculation and plotting of the injury-related location map of Victoria]
+|   |   matplotlibestyle.py         [matplotlib parameters settings]
 │   
 └───data
 │   │   <add datasets here>   
