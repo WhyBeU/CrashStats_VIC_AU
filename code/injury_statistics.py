@@ -5,14 +5,15 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 import datetime
-
+from pathlib import Path
 from matplotlibstyle import *
 # %%-
 
 # %%--  Settings
-DATADIR = "data/"
-FIGDIR = "figures/"
-SAVE = False
+DIR = Path(__file__).parent.parent
+DATADIR = str(DIR/'data')
+FIGDIR = str(DIR/'figures')
+SAVE = True
 # %%-
 
 # %%--  Data loading
@@ -30,7 +31,7 @@ filenames = [
 ]
 dfs_dic = {}
 for filename in filenames:
-    dfs_dic[filename] = pd.read_csv(DATADIR+filename+".csv")
+    dfs_dic[filename] = pd.read_csv(DATADIR+"\\"+filename+".csv")
 # %%-
 
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -41,10 +42,10 @@ for filename in filenames:
 A0_df = dfs_dic["ACCIDENT"]
 
 #   Injury rate
-print("Accident mortality rate: %.2F %%"%(A_df["NO_PERSONS_KILLED"].sum()/A_df["NO_PERSONS"].sum()*100))
-print("Accident serious injury rate: %.2F %%"%(A_df["NO_PERSONS_INJ_2"].sum()/A_df["NO_PERSONS"].sum()*100))
-print("Accident minor injury rate: %.2F %%"%(A_df["NO_PERSONS_INJ_3"].sum()/A_df["NO_PERSONS"].sum()*100))
-print("Accident no injury rate: %.2F %%"%(A_df["NO_PERSONS_NOT_INJ"].sum()/A_df["NO_PERSONS"].sum()*100))
+print("Accident mortality rate: %.2F %%"%(A0_df["NO_PERSONS_KILLED"].sum()/A0_df["NO_PERSONS"].sum()*100))
+print("Accident serious injury rate: %.2F %%"%(A0_df["NO_PERSONS_INJ_2"].sum()/A0_df["NO_PERSONS"].sum()*100))
+print("Accident minor injury rate: %.2F %%"%(A0_df["NO_PERSONS_INJ_3"].sum()/A0_df["NO_PERSONS"].sum()*100))
+print("Accident no injury rate: %.2F %%"%(A0_df["NO_PERSONS_NOT_INJ"].sum()/A0_df["NO_PERSONS"].sum()*100))
 
 # %%-
 
@@ -56,7 +57,7 @@ A1_df = A1_df.groupby([pd.Grouper(key='ACCIDENTDATE',freq='M')]).sum()
 A1_df.reset_index(inplace=True)
 A1_df = A1_df.melt(id_vars='ACCIDENTDATE',var_name='Injury level',value_name='Number of persons')
 A1_df.replace({'Injury level':{'NO_PERSONS_KILLED':'Killed','NO_PERSONS_INJ_2':'Serious injury','NO_PERSONS_INJ_3':'Minor injury','NO_PERSONS_NOT_INJ':'No injury'}}, inplace=True)
-
+A1_df=A1_df.loc[A1_df['Injury level']=='Killed']
 #   Plot
 figname = "Injury over time"
 fig = plt.figure(figsize=(10,6))
@@ -79,8 +80,8 @@ ax.set_xlabel('Date')
 ax.set_title(figname, fontsize=18, y=1.1)
 ax.tick_params(axis='x',labelrotation=45)
 ax.legend(ncol=4,bbox_to_anchor=(0.5,1.05), loc='center', borderaxespad=0.,frameon=False)
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.show()
 # %%-
 
@@ -138,22 +139,33 @@ rot_tab = [0, 0, 90, 90, 90, 90]
 asc_tab = [False, False, True, True, True, True]
 for x, df, xlabel, rot, ax, asc in zip(x_tab, df_tab, xlabel_tab, rot_tab, axes.flatten(),asc_tab):
     if asc: df.sort_values('Number of persons [%]', inplace=True, ascending=False)
-    sns.barplot(
-        x=x,
-        y='Number of persons [%]',
-        hue='Injury level',
-        data=df,
-        ax=ax,
-        saturation=0.8,
-    )
+    if x == 'Day Week Description':
+        sns.barplot(
+            x=x,
+            y='Number of persons [%]',
+            hue='Injury level',
+            order=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+            data=df,
+            ax=ax,
+            saturation=0.8,
+        )
+    else:
+        sns.barplot(
+            x=x,
+            y='Number of persons [%]',
+            hue='Injury level',
+            data=df,
+            ax=ax,
+            saturation=0.8,
+        )
     ax.set_xlabel(xlabel)
     ax.tick_params(axis='x',labelrotation=rot)
     ax.legend_.remove()
 
 axes[0][1].set_title(figname, fontsize=18, y=1.1)
 axes[0][1].legend(ncol=2,bbox_to_anchor=(0.5,1.05), loc='center', borderaxespad=0.,frameon=False)
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.show()
 # %%-
 
@@ -233,8 +245,8 @@ for x, df, xlabel, rot, ax in zip(x_tab, df_tab, xlabel_tab, rot_tab, axes.flatt
 
 axes[0].set_title(figname, fontsize=18, y=1.05)
 axes[0].legend(ncol=2,bbox_to_anchor=(1.5,1.07), loc='center', borderaxespad=0.,frameon=False)
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.show()
 # %%-
 
@@ -311,6 +323,6 @@ ax3.set_title("Vehicle manufacturing distribution", fontsize=14, y=0.9, x=0.25)
 cbar=fig.colorbar(sc, ax=ax3)
 cbar.set_label("Injury rate")
 
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.show()
 # %%-

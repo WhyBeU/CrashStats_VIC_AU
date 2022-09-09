@@ -5,13 +5,14 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 import datetime
-
+from pathlib import Path
 from matplotlibstyle import *
 # %%-
 
 # %%--  Settings
-DATADIR = "data/"
-FIGDIR = "figures/"
+DIR = Path(__file__).parent.parent
+DATADIR = str(DIR/'data')
+FIGDIR = str(DIR/'figures')
 SAVE = True
 # %%-
 
@@ -30,7 +31,7 @@ filenames = [
 ]
 dfs_dic = {}
 for filename in filenames:
-    dfs_dic[filename] = pd.read_csv(DATADIR+filename+".csv")
+    dfs_dic[filename] = pd.read_csv(DATADIR+"\\"+filename+".csv")
 # %%-
 
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -71,7 +72,7 @@ ax1.axis("off")
 ax2.set_aspect("equal")
 ax2.axis("off")
 
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
 plt.show()
 # %%-
@@ -105,7 +106,7 @@ ax1.set_ylim(ymin, ymin + window)
 ax1.set_aspect("equal")
 ax1.axis("off")
 
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
 plt.show()
 # %%-
@@ -139,7 +140,7 @@ ax1.set_ylim(ymin, ymin+window)
 ax1.set_aspect("equal")
 ax1.axis("off")
 
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
 plt.show()
 # %%-
@@ -173,7 +174,7 @@ ax1.set_ylim(ymin, ymin+window)
 ax1.set_aspect("equal")
 ax1.axis("off")
 
-if SAVE: plt.savefig(FIGDIR+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
+if SAVE: plt.savefig(FIGDIR+"\\"+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+"_"+figname+".png",transparent=True,bbox_inches='tight')
 plt.tight_layout()
 plt.show()
 # %%-
